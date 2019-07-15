@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Lambda for Java11"
+Resources:
+  LambdaJava11ExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: "LambdaJava11Role"
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSLambdaExecute
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+      Path: /
+  Java11Runtime:
+    Type: "AWS::Lambda::LayerVersion"
+    Properties:
+      Description: "Java 11 Runtime with part of the supported Lambda functionality"
+      Content:
+        S3Bucket: avpod
+        S3Key: lambda_sources/layers/java11/lambda-layer.zip
+  Java11Lambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Code:
+        S3Bucket: avpod
+        S3Key: "lambda_sources/java11/lambda-java11-1.0-SNAPSHOT.jar"
+      FunctionName: "Java11Lambda"
+      Handler: "de.avpod.aws.lambda.java11.LambdaHandler::handleRequest"
+      Runtime: !Ref Java11Runtime
+      Tags:
+        - Key: "Type"
+          Value: "Bots"
+      Timeout: 10
+      Role:
+        Fn::GetAtt:
+          - LambdaJava11ExecutionRole
+          - Arn

@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+}
+
+group 'de.avpod.aws.lambda.runtime'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+clean {
+    doLast {
+        delete 'build'
+    }
+}
+
+task jlink(type:Exec) {
+    dependsOn 'clean', 'jar'
+    workingDir './build'
+
+    commandLine '../create-java-11-runtime.sh'
+}
+
+task packLayer(type: Zip) {
+    dependsOn 'jlink'
+    from './build/lambda-layer'
+    include '*/**'
+    archiveName 'lambda-layer.zip'
+    destinationDir file('build')
+
+}
+
+defaultTasks 'packLayer'

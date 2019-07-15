@@ -1,0 +1,4 @@
+rootProject.name = 'lambda-java11'
+include 'lambda-runtime-java11'
+project(':lambda-runtime-java11').projectDir = new File('lambda-runtime-java11')
+
